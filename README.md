@@ -76,7 +76,7 @@ This project is a Flask-based API for sending notifications to Microsoft Teams u
 - **Request Body**:
     ```json
     {
-        "channel": "channel-name",
+        "iwagent": "flow-name",
         "errors": {
             "monitor_name": [
                 {
