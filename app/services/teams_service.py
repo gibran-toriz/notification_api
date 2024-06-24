@@ -12,7 +12,7 @@ def format_teams_message(notification_message: NotificationMessage):
             "type": "TextBlock",
             "size": "Large",
             "weight": "Bolder",
-            "text": "Reporte de Errores"
+            "text": f"Reporte de Errores {notification_message.flow}"
         },
         {
             "type": "TextBlock",

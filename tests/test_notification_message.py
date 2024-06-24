@@ -1,11 +1,11 @@
 import unittest
 from app.models.message import NotificationMessage, ErrorDetail, StepErrors, MonitorErrors
-from app.utils.validation import validate_notification_message
 
 class TestNotificationMessage(unittest.TestCase):
     
     def test_valid_input(self):
         json_input = {
+            "iwagent": "example_flow",
             "errors": {
                 "Monitor1": [
                     {
@@ -31,6 +31,7 @@ class TestNotificationMessage(unittest.TestCase):
         }
         notification_message = NotificationMessage.from_dict(json_input)
         
+        self.assertEqual(notification_message.flow, "example_flow")
         self.assertIn("Monitor1", notification_message.errors.monitors)
         self.assertIn("Monitor2", notification_message.errors.monitors)
         self.assertIn("step1", notification_message.errors.monitors["Monitor1"].steps)
@@ -40,6 +41,7 @@ class TestNotificationMessage(unittest.TestCase):
 
     def test_missing_optional_field(self):
         json_input = {
+            "iwagent": "example_flow",
             "errors": {
                 "Monitor1": [
                     {
@@ -52,6 +54,7 @@ class TestNotificationMessage(unittest.TestCase):
         }
         notification_message = NotificationMessage.from_dict(json_input)
         
+        self.assertEqual(notification_message.flow, "example_flow")
         self.assertIn("Monitor1", notification_message.errors.monitors)
         self.assertIn("step1", notification_message.errors.monitors["Monitor1"].steps)
         self.assertEqual(notification_message.errors.monitors["Monitor1"].steps["step1"][0].message, "error message")
@@ -59,6 +62,7 @@ class TestNotificationMessage(unittest.TestCase):
 
     def test_empty_error_list(self):
         json_input = {
+            "iwagent": "example_flow",
             "errors": {
                 "Monitor1": [
                     {
@@ -82,11 +86,28 @@ class TestNotificationMessage(unittest.TestCase):
 
     def test_invalid_input_no_errors(self):
         json_input = {
+            "iwagent": "example_flow",
             "errors": {}
         }
         with self.assertRaises(ValueError) as context:
             notification_message = NotificationMessage.from_dict(json_input)
         self.assertTrue("The notification message must contain at least one monitor with errors." in str(context.exception))
+
+    def test_missing_flow_field(self):
+        json_input = {
+            "errors": {
+                "Monitor1": [
+                    {
+                        "step1": [
+                            ["error message"]
+                        ]
+                    }
+                ]
+            }
+        }
+        with self.assertRaises(ValueError) as context:
+            notification_message = NotificationMessage.from_dict(json_input)
+        self.assertTrue("The notification message must contain a 'iwagent' field." in str(context.exception))
 
 if __name__ == '__main__':
     unittest.main()

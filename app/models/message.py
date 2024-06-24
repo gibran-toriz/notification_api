@@ -17,12 +17,16 @@ class MonitorErrors:
 @dataclass
 class NotificationMessage:
     errors: MonitorErrors
+    flow: str
     channel: Optional[str] = None
 
     @staticmethod
     def from_dict(data: Dict[str, Union[str, Dict]]) -> 'NotificationMessage':
+        flow = data.get('iwagent')
         channel = data.get('channel')
         monitors = {}
+        if not flow:
+            raise ValueError("The notification message must contain a 'iwagent' field.")
         for monitor_name, steps in data.get('errors', {}).items():
             step_errors = {}
             for step in steps:
@@ -42,4 +46,4 @@ class NotificationMessage:
             monitors[monitor_name] = StepErrors(steps=step_errors)
         if not monitors:
             raise ValueError("The notification message must contain at least one monitor with errors.")
-        return NotificationMessage(channel=channel, errors=MonitorErrors(monitors=monitors))
+        return NotificationMessage(flow=flow, channel=channel, errors=MonitorErrors(monitors=monitors))
