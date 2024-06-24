@@ -1,0 +1,11 @@
+# Python env
+env**/
+.env
+**.pyc
+
+
+# Local 
+.DS_Store
+
+# VSCode
+.vscode/
